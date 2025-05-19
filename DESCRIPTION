@@ -9,5 +9,6 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
+Imports: 
+    RDCOMClient (>= 0.95.1)
 Remotes: bschamberger/RDCOMClient
-Depends: RDCOMClient
