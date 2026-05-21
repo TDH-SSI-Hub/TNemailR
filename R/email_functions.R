@@ -94,6 +94,8 @@ email_draft <- function(to='', subject='', body='', from = NA, attach = c(), cc 
     if(!exists('outApp')){
       outApp<<-RDCOMClient::COMCreate("Outlook.Application", existing = F)
     }
+    
+    if(signature) visible<-T
 
     #if (visible) {
       outMail <<- outApp$CreateItem(0)
