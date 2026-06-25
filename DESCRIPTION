@@ -1,14 +1,15 @@
 Package: TNemailR
 Type: Package
-Title: Draft and send Outlook emails
-Version: 0.1.0
+Title: Draft and Send Outlook Emails
+Version: 0.1.1
 Author: Greg Chambers
-Maintainer: <greg.chambers@tn.gov>
-Description: Use RDCOMCLient to draft and send emails.
+Maintainer: Greg Chambers <greg.chambers@tn.gov>
+Description: Use RDCOMClient to draft and send Outlook emails.
 License: MIT
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
-Imports: 
-    RDCOMClient (>= 0.95.1)
-Remotes: bschamberger/RDCOMClient
+Imports:
+    RDCOMClient (>= 0.95-1)
+Additional_repositories:
+    https://rickhelmus.r-universe.dev
+Config/roxygen2/version: 8.0.0

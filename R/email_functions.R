@@ -96,12 +96,9 @@ email_draft <- function(to='', subject='', body='', from = NA, attach = c(), cc 
     }
     
     if(signature) visible<-T
+    
+    outMail <<- outApp$CreateItem(0)
 
-    #if (visible) {
-      outMail <<- outApp$CreateItem(0)
-    #}else{
-    #  outMail <<- outApp$CreateItem(0)
-    #}
 
     # Send the message from an alternate account
     if (!is.na(from)) {
@@ -110,11 +107,11 @@ email_draft <- function(to='', subject='', body='', from = NA, attach = c(), cc 
 
     if (visible) {outMail$Display()}
 
-    if(signature){
-      inspector<-outMail$GetInspector()
-      signaturetext <- outMail[["HTMLBody"]]
-      #inspector$Close(1)
-    }
+    #if(signature){
+    #  inspector<-outMail$GetInspector()
+    #  signaturetext <- outMail[["HTMLBody"]]
+    #  #inspector$Close(1)
+    #}
 
     for (r in c("to", "cc", "bcc")) {
       if (length(get(r)) > 0) {
@@ -158,20 +155,24 @@ email_draft <- function(to='', subject='', body='', from = NA, attach = c(), cc 
       }
     }
 
-    if (grepl("<br>|<tr>",body)) {
-      outMail[["HTMLBody"]] <- body
-    } else {
-      outMail[["body"]] <- body
+    if(grepl('\n',body)){
+      message('\\n replaced with <br> in email body. Consider updating code to use HTML.')
+      body<-stringr::str_replace_all(body,'\n','<br>')
     }
+    #if (grepl("<br>|<tr>",body)) {
+      outMail[["HTMLBody"]] <- paste0('<body>',body,'</body>',outMail[["HTMLBody"]])
+    #} else {
+    #  outMail[["body"]] <- body
+    #}
 
 
-    if(signature ){
-      if(!is.null(signaturetext)){
-      outMail[["HTMLBody"]] <- paste0(outMail[["HTMLBody"]],signaturetext)
-      }else{
-        message("Error generating signature")
-      }
-    }
+    #if(signature ){
+    #  if(!is.null(signaturetext)){
+    #  outMail[["HTMLBody"]] <- paste0(outMail[["HTMLBody"]],signaturetext)
+    #  }else{
+    #    message("Error generating signature")
+    #  }
+    #}
 
 
 
