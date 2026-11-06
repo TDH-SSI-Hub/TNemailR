@@ -233,4 +233,72 @@ email_send <- function(to, subject, body, from = NA, attach = c(), cc = c(), bcc
 
 
 
+#' Send an email via REDCap Email Process
+#'
+#' This function interfaces with a specially designed REDCap project to send emails.
+#'
+#' @param token API Token
+#' @param api_url API url
+#' @param to 1-3 recipient emails
+#' @param subject Email subject
+#' @param body Email body
+#' @param attachments 0-3 Attachments. File size is limited to 20mb.
+#' @param cc Email cc
+#'
+#' @return T/F
+#' @export
+email_redcap<-function(token,api_url ,to,subject,body, attachments=c(), cc=c()){
+  
+  starting_id <- redcap_next_free_record_name(api_url, token = token, verbose = F)
+  
+  # Establish record
+  
+  suppressMessages({
+    test_send <- data.frame(record_id = starting_id, body = body)
+    
+    if(length(to) < 1 | length(to) > 3) stop("You need 1-3 recipients in the 'to' field")
+    for(i in 1:length(to)){
+      test_send[,paste0("to_",i)]<-to[i]
+    }
+    
+    if(length(cc) > 3) stop("You need 3 or fewer recipients in the 'cc' field")
+    for(i in 1:length(cc)){
+      test_send[,paste0("cc_",i)]<-cc[i]
+    }
+    
+    
+    email_status<-redcap_write(test_send, redcap_uri = api_url, token = token, verbose = F)
+  })
+  
+  
+  # Add any attachments
+  if(length(attachments)>0){
+    
+    if(length(attachments)<=3){
+      for(i in seq_len(length(attachments))){
+        fs<-file.size(attachments[i])
+        if(fs>20000000){
+          stop(paste0('Attachment ', i,' is over 20mb limit.'))
+          return(F)
+        }else if(fs==0){
+          message(paste0('Warning: attachment ',i,' has size of 0. Will not send.'))
+        }
+        redcap_upload_file_oneshot(attachments[i], redcap_uri = api_url, field=paste0('attachment',i), record = starting_id, token = token, verbose = F)
+      }
+    }else{
+      stop('Too many attachments. Limit is 3.')
+      return(F)
+    }
+    
+  }
+  
+  # Complete the record to trigger the email
+  suppressMessages({
+    subject_send <- data.frame(record_id = starting_id, subject = subject)
+    email_status<-redcap_write(subject_send, redcap_uri = api_url, token = token, verbose = F)
+  })
+  
+  email_status$success
+  
+}
 
