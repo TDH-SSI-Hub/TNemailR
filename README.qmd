@@ -1,0 +1,113 @@
+---
+title: "TNemailR"
+format: gfm
+editor: visual
+#output-file: README.md
+execute: 
+  warning: false
+---
+
+```{r}
+#| eval: true
+#| echo: false
+
+library(TNemailR)
+
+```
+
+## Overview
+
+This package allows users to easily send emails from within R scripts. Emails can be sent via Outlook or REDCap.
+
+### Download this package
+
+```{r installation}
+#| eval: false
+#| echo: true
+
+options(repos = c(
+  rickhelmus = "https://rickhelmus.r-universe.dev",
+  CRAN = "https://cloud.r-project.org"
+))
+
+pak::pak('TDH-SSI-Hub/TNemailR')
+
+```
+
+If you can't install this package, you likely need to install `pak` and/or the correct version of `rtools` for your R. We need to specify an alternate package repository because RDCOMClient (used for Outlook emails) is not maintained on CRAN.
+
+## Sending Emails via Outlook
+
+Sending emails via Outlook requires the RDCOMClient package, which can be harder to install compared to some other packages. If the code above does not work, contact the informatics team for assistance. Sending emails via Outlook requires you to be logged in to your account. If a task is scheduled, emails will only send if you have completed Windows authentication in the past 18 hours. This complicates scheduled tasks that need to send emails at odd hours, or on the weekends. The R/Outlook interface may also only function with the old version of Outlook. Consider using `email_redcap()` to overcome these limitations and concerns.
+
+`email_send()` is a wrapper around `email_draft()`. They both take the same parameters. By default, `email_draft` will open the email in the visual editor without sending the email. In contrast, `email_send()` defaults to sending an email without showing it in the visual editor. Either function can act as the other if you change the `send` and `visible` parameters.
+
+```{r}
+#| eval: false
+
+# Send a basic email
+email_send(to = 'example@gmail.com',
+            subject = 'Automated Email',
+            body='Final email body.'
+           )
+
+```
+
+Each function also creates 2 objects in the global environment:
+
+1.  `outApp` represents the Outlook Application
+
+2.  `outMail` represents the created email
+
+So you can use adapted methods and properties from the [Outlook VBA guide](https://learn.microsoft.com/en-us/office/vba/api/overview/outlook) to work with the email.
+
+```{r}
+#| eval: false
+
+# Draft and open an email
+email_draft(to = 'example@gmail.com',
+            subject = 'Automated Email',
+            body=''
+            )
+# Make manual edits in the Outlook visual editor
+
+# Or make edits in R
+outMail[['body']] <- 'Please do not respond'
+
+# Send the email using RDCOMClient syntax
+outMail$Send()
+
+```
+
+## Sending Emails via REDCap
+
+The informatics team has created a REDCap project which can send out emails based on records submitted via an API. Reach out to the informatics team for assistance with gaining access to the project (token and url).
+
+This project was created to overcome the authentication issues which arise with Outlook, but there are several important limitations of this project.
+
+1.  The number of recipients is capped by the survey design. Currently, the `to` and `cc` fields can accept up to 3 emails. We can change the survey design to accept more if needed.
+
+2.  Similarly, there is a limit of 3 attachments. This could also be adjusted if you needed. There is a hard file size limit of 20mb which cannot be changed.
+
+3.  `bcc` is not currently supported
+
+4.  The email will always come from a dedicated REDCap email. Consider including an email for replies, if needed.
+
+- ::: {}
+  ```{r}
+  #| eval: false
+
+  r_token<-'12345'
+  r_url<-'r.api.url'
+
+  # Send a basic email
+  email_redcap(
+    token=r_token,
+    api_url=r_url,
+    to = 'example@gmail.com',
+    subject = 'Automated Email',
+    body='Final email body.'
+             )
+
+  ```
+  :::

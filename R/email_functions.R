@@ -247,9 +247,9 @@ email_send <- function(to, subject, body, from = NA, attach = c(), cc = c(), bcc
 #'
 #' @return T/F
 #' @export
-email_redcap<-function(token,api_url ,to,subject,body, attachments=c(), cc=c()){
+email_redcap<-function(token, api_url , to,subject, body, attachments=c(), cc=c()){
   
-  starting_id <- redcap_next_free_record_name(api_url, token = token, verbose = F)
+  starting_id <- REDCapR::redcap_next_free_record_name(api_url, token = token, verbose = F)
   
   # Establish record
   
@@ -267,7 +267,7 @@ email_redcap<-function(token,api_url ,to,subject,body, attachments=c(), cc=c()){
     }
     
     
-    email_status<-redcap_write(test_send, redcap_uri = api_url, token = token, verbose = F)
+    email_status<- REDCapR::redcap_write(test_send, redcap_uri = api_url, token = token, verbose = F)
   })
   
   
@@ -283,7 +283,7 @@ email_redcap<-function(token,api_url ,to,subject,body, attachments=c(), cc=c()){
         }else if(fs==0){
           message(paste0('Warning: attachment ',i,' has size of 0. Will not send.'))
         }
-        redcap_upload_file_oneshot(attachments[i], redcap_uri = api_url, field=paste0('attachment',i), record = starting_id, token = token, verbose = F)
+        REDCapR::redcap_upload_file_oneshot(attachments[i], redcap_uri = api_url, field=paste0('attachment',i), record = starting_id, token = token, verbose = F)
       }
     }else{
       stop('Too many attachments. Limit is 3.')
@@ -295,10 +295,11 @@ email_redcap<-function(token,api_url ,to,subject,body, attachments=c(), cc=c()){
   # Complete the record to trigger the email
   suppressMessages({
     subject_send <- data.frame(record_id = starting_id, subject = subject)
-    email_status<-redcap_write(subject_send, redcap_uri = api_url, token = token, verbose = F)
+    email_status<-REDCapR::redcap_write(subject_send, redcap_uri = api_url, token = token, verbose = F)
   })
   
   email_status$success
   
 }
+
 
